@@ -34,6 +34,7 @@ describe("Authenticate User Use Case", () => {
       password: user.password,
     });
     expect(result).toHaveProperty("token");
+    expect(result).toHaveProperty("user");
   });
 
   it("should not be able sign in with incorrect email", async () => {
@@ -42,6 +43,16 @@ describe("Authenticate User Use Case", () => {
       await authenticateUserUseCase.execute({
         email: 'incorrect@email.com',
         password: user.password,
+      })
+    }).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
+  });
+
+  it("should not be able sign in with incorrect password", async () => {
+    const user = await createUser();
+    expect(async () => {
+      await authenticateUserUseCase.execute({
+        email: user.email,
+        password: 'incorrectpassword',
       })
     }).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
   });
