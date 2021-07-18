@@ -1,15 +1,15 @@
-import { User } from '@modules/users/entities/User';
-import { InMemoryUsersRepository } from '@modules/users/repositories/in-memory/InMemoryUsersRepository';
-import { CreateUserUseCase } from '../createUser/CreateUserUseCase';
-import { ICreateUserDTO } from '../createUser/ICreateUserDTO';
-import { ShowUserProfileUseCase } from './ShowUserProfileUseCase';
+import { User } from "@modules/users/entities/User";
+import { InMemoryUsersRepository } from "@modules/users/repositories/in-memory/InMemoryUsersRepository";
+import { CreateUserUseCase } from "../createUser/CreateUserUseCase";
+import { ICreateUserDTO } from "../createUser/ICreateUserDTO";
+import { ShowUserProfileError } from "./ShowUserProfileError";
+import { ShowUserProfileUseCase } from "./ShowUserProfileUseCase";
 
 let userRepository: InMemoryUsersRepository;
 let createUserUseCase: CreateUserUseCase;
-let showUserProfileUseCase: ShowUserProfileUseCase
+let showUserProfileUseCase: ShowUserProfileUseCase;
 
-describe('Show User Profile Use Case', () => {
-
+describe("Show User Profile Use Case", () => {
   async function createUser(): Promise<User> {
     const userDTO: ICreateUserDTO = {
       email: "fulano@email.com",
@@ -24,15 +24,21 @@ describe('Show User Profile Use Case', () => {
     userRepository = new InMemoryUsersRepository();
     createUserUseCase = new CreateUserUseCase(userRepository);
     showUserProfileUseCase = new ShowUserProfileUseCase(userRepository);
-  })
+  });
 
-  it('should be able return user info', async () => {
+  it("should be able return user info", async () => {
     const user = await createUser();
-    const result = await showUserProfileUseCase.execute(user.id!)
-    expect(result).toHaveProperty('id')
-    expect(result).toHaveProperty('email')
-    expect(result).toHaveProperty('name')
-    expect(result).toHaveProperty('password')
+    const result = await showUserProfileUseCase.execute(user.id!);
+    expect(result).toHaveProperty("id");
+    expect(result).toHaveProperty("email");
+    expect(result).toHaveProperty("name");
+    expect(result).toHaveProperty("password");
+  });
 
-  })
-})
+  it("should throw ShowUserProfileError if user_id is nonexistent", async () => {
+    const user = await createUser();
+    expect(async () => {
+      await showUserProfileUseCase.execute("user_id_nonexistent")
+    }).rejects.toBeInstanceOf(ShowUserProfileError);
+  });
+});
