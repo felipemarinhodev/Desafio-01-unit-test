@@ -1,12 +1,12 @@
 import "reflect-metadata";
 
+import { OperationType } from "@modules/statements/entities/Statement";
 import { InMemoryStatementsRepository } from "@modules/statements/repositories/in-memory/InMemoryStatementsRepository";
+import { User } from "@modules/users/entities/User";
 import { InMemoryUsersRepository } from "@modules/users/repositories/in-memory/InMemoryUsersRepository";
 import { CreateUserUseCase } from "@modules/users/useCases/createUser/CreateUserUseCase";
-import { CreateStatementUseCase } from "./CreateStatementUseCase";
-import { User } from "@modules/users/entities/User";
 import { CreateStatementError } from "./CreateStatementError";
-import { OperationType } from "@modules/statements/entities/Statement";
+import { CreateStatementUseCase } from "./CreateStatementUseCase";
 
 let statementRepositoryInMemory: InMemoryStatementsRepository;
 let usersRepositoryInMemory: InMemoryUsersRepository;
@@ -72,5 +72,29 @@ describe("Create Statement Use Case", () => {
     expect(statementOperation).toHaveProperty("amount");
     expect(statementOperation).toHaveProperty("description");
     expect(statementOperation.amount).toBe(amount);
+  });
+
+  it("should be able to withdraw to a user", async () => {
+    const user = await makeUser();
+    const amount = 45;
+    await createStatementUseCase.execute({
+      user_id: user.id!,
+      amount: 100,
+      type: OperationType.DEPOSIT,
+      description: "test",
+    });
+    const withdrawOperation = await createStatementUseCase.execute({
+      user_id: user.id!,
+      amount,
+      type: OperationType.WITHDRAW,
+      description: "test",
+    });
+
+    expect(withdrawOperation).toHaveProperty("id");
+    expect(withdrawOperation).toHaveProperty("user_id");
+    expect(withdrawOperation).toHaveProperty("type");
+    expect(withdrawOperation).toHaveProperty("amount");
+    expect(withdrawOperation).toHaveProperty("description");
+    expect(withdrawOperation.amount).toBe(amount);
   });
 });
