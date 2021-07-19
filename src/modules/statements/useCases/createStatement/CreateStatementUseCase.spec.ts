@@ -43,4 +43,16 @@ describe("Create Statement Use Case", () => {
       });
     }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   });
+
+  it("should throw InsufficientFunds if balance less than the amount", async () => {
+    const user = await makeUser();
+    expect(async () => {
+      await createStatementUseCase.execute({
+        user_id: user.id!,
+        amount: 1,
+        type: OperationType.WITHDRAW,
+        description: "test",
+      });
+    }).rejects.toBeInstanceOf(CreateStatementError.InsufficientFunds);
+  });
 });
