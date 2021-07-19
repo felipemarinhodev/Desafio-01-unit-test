@@ -39,4 +39,13 @@ describe("Get Statement Operation Use Case", () => {
       });
     }).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound);
   });
+  it("should throw StatementNotFound when using a statement falsely", async () => {
+    const user = await makeUser();
+    expect(async () => {
+      await getStatementOperationUseCase.execute({
+        user_id: user.id!,
+        statement_id: "any_value",
+      });
+    }).rejects.toBeInstanceOf(GetStatementOperationError.StatementNotFound);
+  });
 });
