@@ -55,4 +55,22 @@ describe("Create Statement Use Case", () => {
       });
     }).rejects.toBeInstanceOf(CreateStatementError.InsufficientFunds);
   });
+
+  it("should be able to deposit to a user", async () => {
+    const user = await makeUser();
+    const amount = 100;
+    const statementOperation = await createStatementUseCase.execute({
+      user_id: user.id!,
+      amount,
+      type: OperationType.DEPOSIT,
+      description: "test",
+    });
+
+    expect(statementOperation).toHaveProperty("id");
+    expect(statementOperation).toHaveProperty("user_id");
+    expect(statementOperation).toHaveProperty("type");
+    expect(statementOperation).toHaveProperty("amount");
+    expect(statementOperation).toHaveProperty("description");
+    expect(statementOperation.amount).toBe(amount);
+  });
 });
